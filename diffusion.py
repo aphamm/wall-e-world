@@ -97,8 +97,11 @@ class Diffusion(nn.Module):
         c = (1 - alphas_next_cumprod).sqrt()
 
         v_pred_cond = model(x, clipped_t, actions)
-        v_pred_null = model(x, clipped_t, model.get_null_cond(actions))
-        v_pred = (1 - cfg) * v_pred_null + cfg * v_pred_cond
+        if cfg != 1.0:
+            v_pred_null = model(x, clipped_t, model.get_null_cond(actions))
+            v_pred = (1 - cfg) * v_pred_null + cfg * v_pred_cond
+        else:
+            v_pred = v_pred_cond
 
         x_start = alphas_cumprod.sqrt() * x - (1 - alphas_cumprod).sqrt() * v_pred
         pred_noise = ((1 / alphas_cumprod).sqrt() * x - x_start) / ((1 / alphas_cumprod) - 1).sqrt()
