@@ -4,9 +4,12 @@ import torch.nn.functional as F
 import einops
 import math
 import functools
-from enum import StrEnum
 from typing import Sequence
-
+import sys
+if sys.version_info >= (3, 11):
+    from enum import StrEnum
+else:
+    from backports.strenum import StrEnum
 
 class AttentionType(StrEnum):
     SPATIAL = "spatial"
