@@ -1,4 +1,4 @@
-# Evaluating Robot Policies in a World Model [\[paper\]](https://arxiv.org/abs/2506.00613) [\[website\]](https://world-model-eval.github.io/abstract) [\[demo\]](https://world-model-eval.github.io/) 
+# WorldGym: World Model as An Environment for Policy Evaluation [\[paper\]](https://arxiv.org/abs/2506.00613) [\[website\]](https://world-model-eval.github.io/abstract) [\[demo\]](https://world-model-eval.github.io/) 
 
 <!-- GIF gallery -->
 <div style="display: flex; gap: 10px;">
@@ -8,7 +8,7 @@
   <img src="media/gripper.gif" alt="gripper" width="200"/>
 </div>
 
-[Julian Quevedo](https://julian-q.github.io/)<sup>1</sup>, [Percy Liang](https://cs.stanford.edu/~pliang/)<sup>1</sup>, [Sherry Yang](https://sherryy.github.io/)<sup>1,2,3</sup>
+[Julian Quevedo](https://julian-q.github.io/)<sup>1</sup>, [Ansh Kumar Sharma](https://www.linkedin.com/in/ansh-ks/)<sup>2</sup>, Yixiang Sun<sup>2</sup>, Varad Suryavanshi<sup>2</sup>, [Percy Liang](https://cs.stanford.edu/~pliang/)<sup>1</sup>, [Sherry Yang](https://sherryy.github.io/)<sup>1,2,3</sup>
 
 Stanford University<sup>1</sup> &nbsp;&nbsp; New York University<sup>2</sup> &nbsp;&nbsp; Google DeepMind<sup>3</sup>
 
@@ -161,9 +161,9 @@ Then, convert the dataset to our format with `python -m world_model_eval.downloa
 If you find this work useful, please cite:
 
 ```text
-@misc{quevedo2025evaluatingrobotpoliciesworld,
-      title={Evaluating Robot Policies in a World Model},
-      author={Julian Quevedo and Percy Liang and Sherry Yang},
+@misc{quevedo2025worldgymworldmodelenvironment,
+      title={WorldGym: World Model as An Environment for Policy Evaluation}, 
+      author={Julian Quevedo and Ansh Kumar Sharma and Yixiang Sun and Varad Suryavanshi and Percy Liang and Sherry Yang},
       year={2025},
       eprint={2506.00613},
       archivePrefix={arXiv},
@@ -178,4 +178,5 @@ If you find this work useful, please cite:
 - [Boyuan Chen](https://boyuan.space/) and [Kiwhan Song](https://kiwhan.dev/) for [Diffusion Forcing](https://github.com/buoyancy99/diffusion-forcing)
 - [DiT](https://github.com/facebookresearch/DiT)
 - [Oasis](https://github.com/etched-ai/open-oasis)
+- [open_x_embodiment](https://github.com/google-deepmind/open_x_embodiment)
 
