@@ -1,0 +1,5 @@
+[project]
+name = "world-model-modal"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = ["modal>=0.73.0"]
