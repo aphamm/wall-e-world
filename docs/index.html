@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="description"
+      content="Wall-E-World: Evaluating Robot Policies via Large-Scale Human-Centric World Models."
+    />
+    <meta
+      name="keywords"
+      content="World Models, Human-to-Robot Transfer, Embodiment Gap, LoRA, Policy Evaluation, Robotics"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      Wall-E-World: Evaluating Robot Policies via Large-Scale Human-Centric World Models
+    </title>
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./static/css/bulma.min.css" />
+    <link rel="stylesheet" href="./static/css/fontawesome.all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css"
+    />
+    <link rel="stylesheet" href="./static/css/index.css" />
+
+    <script defer src="./static/js/fontawesome.all.min.js"></script>
+  </head>
+  <body>
+    <section class="hero">
+      <div class="hero-body">
+        <div class="container is-max-desktop">
+          <div class="columns is-centered">
+            <div class="column has-text-centered">
+              <h1 class="title is-1 publication-title">
+                Wall-E-World: Evaluating Robot Policies via Large-Scale Human-Centric World Models
+              </h1>
+              <div class="is-size-5 publication-authors">
+                <span class="author-block">
+                  <a href="https://github.com/aphamm">Austin Pham</a><sup>*1</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="#">Hao Gu</a><sup>*2</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://www.hodlipson.com">Hod Lipson</a><sup>†1</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://yuewang.xyz">Yue Wang</a><sup>†3</sup>
+                </span>
+              </div>
+
+              <div class="is-size-5 publication-authors">
+                <span class="author-block" style="margin-right: 1rem"
+                  ><sup>1</sup>Columbia University</span
+                >
+                <span class="author-block" style="margin-right: 1rem"
+                  ><sup>2</sup>UCLA</span
+                >
+                <span class="author-block"><sup>3</sup>USC</span>
+              </div>
+
+              <div class="is-size-6 publication-authors">
+                <span class="author-block" style="margin-right: 1rem"
+                  ><sup>*</sup>Core Contributors</span
+                >
+                <span class="author-block"><sup>†</sup>Advisors</span>
+              </div>
+
+              <div class="column has-text-centered">
+                <div class="publication-links">
+                  <!-- Paper Link. -->
+                  <span class="link-block">
+                    <a
+                      href="#"
+                      class="external-link button is-normal is-rounded is-dark"
+                    >
+                      <span class="icon">
+                        <i class="ai ai-arxiv"></i>
+                      </span>
+                      <span>Paper (Coming Soon)</span>
+                    </a>
+                  </span>
+                  <!-- Code Link. -->
+                  <span class="link-block">
+                    <a
+                      href="https://github.com/aphamm/wall-e-world"
+                      class="external-link button is-normal is-rounded is-dark"
+                    >
+                      <span class="icon">
+                        <i class="fab fa-github"></i>
+                      </span>
+                      <span>Code</span>
+                    </a>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container is-max-desktop">
+        <!-- Abstract. -->
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-four-fifths">
+            <h2 class="title is-3">Abstract</h2>
+            <div class="content has-text-justified">
+              <p>
+                Evaluating robot manipulation policies at scale remains a fundamental bottleneck
+                in robotics research. Current world models are trained exclusively on limited
+                robot data—typically less than 100 hours of demonstrations—resulting in poor
+                generalization to novel objects and scenes. We observe that while robot embodiments
+                vary, the underlying physics of manipulation is shared with human interaction.
+                We propose <strong>Wall-E-World</strong>, a two-stage approach that pre-trains a
+                world model foundation on 10,000 hours of egocentric human manipulation video
+                with 21-keypoint hand tracking, then adapts to specific robot embodiments via
+                lightweight LoRA fine-tuning on minimal robot data (&lt;100 hours). Our key insight
+                is that physics knowledge transfers: a model that has observed millions of
+                human-object interactions can simulate robot manipulation with far less robot-specific
+                data. We demonstrate that Wall-E-World achieves Pearson correlation <em>r</em> &gt; 0.85
+                between simulated and real-world policy rankings, outperforming robot-only baselines
+                trained on equivalent data. Our approach reduces the robot data requirement by
+                10× while improving generalization to unseen objects.
+              </p>
+            </div>
+          </div>
+        </div>
+        <!--/ Abstract. -->
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container is-max-widescreen">
+        <h2 class="title is-3 has-text-centered">
+          Training Progression
+        </h2>
+        <div class="content has-text-centered" style="margin-bottom: 2rem;">
+          <p>
+            Visualization of world model generation quality over training steps.
+          </p>
+        </div>
+
+        <style>
+          .gif-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+          }
+          .gif-item {
+            text-align: center;
+          }
+          .gif-item img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          }
+          .gif-label {
+            margin-top: 0.5rem;
+            font-weight: 600;
+            color: #363636;
+          }
+        </style>
+
+        <div class="gif-grid">
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000000000.gif" alt="Step 0">
+            <p class="gif-label">Step 0</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000002000.gif" alt="Step 2,000">
+            <p class="gif-label">Step 2,000</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000004000.gif" alt="Step 4,000">
+            <p class="gif-label">Step 4,000</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000006000.gif" alt="Step 6,000">
+            <p class="gif-label">Step 6,000</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000008000.gif" alt="Step 8,000">
+            <p class="gif-label">Step 8,000</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000010000.gif" alt="Step 10,000">
+            <p class="gif-label">Step 10,000</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000012000.gif" alt="Step 12,000">
+            <p class="gif-label">Step 12,000</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000014000.gif" alt="Step 14,000">
+            <p class="gif-label">Step 14,000</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000016000.gif" alt="Step 16,000">
+            <p class="gif-label">Step 16,000</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000018000.gif" alt="Step 18,000">
+            <p class="gif-label">Step 18,000</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000020000.gif" alt="Step 20,000">
+            <p class="gif-label">Step 20,000</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000022000.gif" alt="Step 22,000">
+            <p class="gif-label">Step 22,000</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000024000.gif" alt="Step 24,000">
+            <p class="gif-label">Step 24,000</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000026000.gif" alt="Step 26,000">
+            <p class="gif-label">Step 26,000</p>
+          </div>
+          <div class="gif-item">
+            <img src="./static/gifs/gen_000028000.gif" alt="Step 28,000">
+            <p class="gif-label">Step 28,000</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section" id="BibTeX">
+      <div class="container is-max-desktop content">
+        <h2 class="title">BibTeX</h2>
+        <pre><code>@article{pham2025walleworld,
+    title     = {Wall-E-World: Evaluating Robot Policies via Large-Scale Human-Centric World Models},
+    author    = {Austin Pham and Hao Gu and Hod Lipson and Yue Wang},
+    journal   = {arXiv preprint},
+    year      = {2025},
+}</code></pre>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="columns is-centered">
+          <div class="column is-8">
+            <div class="content">
+              <p>
+                This website is based on the
+                <a href="https://github.com/nerfies/nerfies.github.io"
+                  >nerfies template</a
+                >
+                which is licensed under a
+                <a
+                  rel="license"
+                  href="https://creativecommons.org/licenses/by-sa/4.0/"
+                  >Creative Commons Attribution-ShareAlike 4.0 International
+                  License</a
+                >.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Restart GIF animations when page becomes visible or at exact loop point
+      function restartGifs() {
+        document.querySelectorAll('.gif-item img').forEach(img => {
+          const src = img.src;
+          img.src = '';
+          img.src = src;
+        });
+      }
+
+      // Restart when tab becomes visible again
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          restartGifs();
+        }
+      });
+
+      // Restart GIFs every 3.6 seconds (exact GIF duration)
+      setInterval(restartGifs, 3600);
+    </script>
+  </body>
+</html>

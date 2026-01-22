@@ -1,168 +1,100 @@
-# WorldGym: World Model as An Environment for Policy Evaluation [\[paper\]](https://arxiv.org/abs/2506.00613) [\[website\]](https://world-model-eval.github.io/abstract) [\[demo\]](https://world-model-eval.github.io/) 
+# Wall-E-World
 
-<!-- GIF gallery -->
-<div style="display: flex; gap: 10px;">
-  <img src="media/sweep_z.gif" alt="sweep z" width="200"/>
-  <img src="media/sweep_y.gif" alt="sweep y" width="200"/>
-  <img src="media/sweep_x.gif" alt="sweep x" width="200"/>
-  <img src="media/gripper.gif" alt="gripper" width="200"/>
+<div align="center">
+  <img src="docs/static/gifs/gen_000008000.gif" width="180"/>
+  <img src="docs/static/gifs/gen_000016000.gif" width="180"/>
+  <img src="docs/static/gifs/gen_000024000.gif" width="180"/>
+  <img src="docs/static/gifs/gen_000028000.gif" width="180"/>
 </div>
 
-[Julian Quevedo](https://julian-q.github.io/)<sup>1</sup>, [Ansh Kumar Sharma](https://www.linkedin.com/in/ansh-ks/)<sup>2</sup>, Yixiang Sun<sup>2</sup>, Varad Suryavanshi<sup>2</sup>, [Percy Liang](https://cs.stanford.edu/~pliang/)<sup>1</sup>, [Sherry Yang](https://sherryy.github.io/)<sup>1,2,3</sup>
-
-Stanford University<sup>1</sup> &nbsp;&nbsp; New York University<sup>2</sup> &nbsp;&nbsp; Google DeepMind<sup>3</sup>
-
 ---
 
-## Overview
+## Training on Modal
 
-This repository contains the evaluation harness used in *Evaluating Robot Policies in a World Model*. It bundles
-
-- the pretrained diffusion world model,
-- policy-specific runners for OpenVLA, Octo, SpatialVLA, and RT-1-X, and
-- utilities for dataset conversion and automatic VLM scoring.
-
----
-
-## Installation
-
-Install the package in editable mode (optionally with extras for specific policies):
-
-   ```bash
-   pip install -e .[openvla,spatialvla,octo,rt1]
-   ```
-
-   Extras are additive—omit the ones you do not need. Some stacks have additional one-off steps:
-
-  - **Octo** –
-    1. install the dlimp library: `pip install git+https://github.com/kvablack/dlimp@5edaa4691567873d495633f2708982b42edf1972 --no-deps`
-    2. edit the installed Octo package (typically under your Python site-packages) and update `octo/utils/typing.py` so that it defines `PRNGKey = jax.random.PRNGKey`.
-   - **RT-1-X** – obtain the official JAX checkpoint from the [Open X-Embodiment release](https://github.com/google-deepmind/open_x_embodiment?tab=readme-ov-file#rt-1-x-jax-checkpoint).
-
----
-
-## World-model checkpoint
-
-The evaluation runners require a diffusion world-model checkpoint, e.g. `mixed_openx_9robots_20frames_0p1actiondropout_580ksteps.pt` (≈9 GB). This checkpoint is available via this [Google Drive link](https://drive.google.com/file/d/1uiRP2BuavapMsyP9Cbr25mi_ymk9SEJb/view?usp=sharing):
+### Setup
 
 ```bash
-$ pip install gdown
-$ gdown 1uiRP2BuavapMsyP9Cbr25mi_ymk9SEJb
+cd modal
+uv sync
+uv run modal setup
+uv run modal secret create huggingface-secret HF_TOKEN=<your-token>
 ```
 
----
-
-## Prepare evaluation data
-
-Point every runner’s `--root-dir` flag at the directory whose subfolders contain `*.png` + metadata pairs. The helper `discover_trials` recursively discovers tasks from that root.
-
----
-
-### OpenVLA
+### Download Data
 
 ```bash
-world-model-eval-openvla \
-  --root-dir /path/to/tasks \
-  --checkpoint-path ~/checkpoints/world-model/mixed_openx_9robots_20frames_0p1actiondropout_580ksteps.pt \
-  --model-name openvla-7b \
-  --save-video --video-out-dir ./rollouts/openvla
+uv run modal run modal_data.py::download --dataset-name bridge
 ```
 
-### SpatialVLA
+### Train
 
 ```bash
-world-model-eval-spatialvla \
-  --root-dir /path/to/tasks \
-  --checkpoint-path ~/checkpoints/world-model/mixed_openx_9robots_20frames_0p1actiondropout_580ksteps.pt \
-  --model-name spatialvla-4b-224-pt
+uv run modal run modal_train.py::train --subset-names bridge
 ```
 
-### Octo
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `--subset-names` | `bridge` | Dataset names |
+| `--batch-size` | `4` | Batch size per GPU |
+| `--max-train-steps` | `100000` | Total training steps |
+| `--validate-every` | `2000` | Checkpoint frequency |
+
+### Monitor
 
 ```bash
-world-model-eval-octo \
-  --root-dir /path/to/tasks \
-  --checkpoint-path ~/checkpoints/world-model/mixed_openx_9robots_20frames_0p1actiondropout_580ksteps.pt \
-  --model-name octo-base-1.5
+uv run modal app logs world-model-train
+uv run modal volume ls world-model-eval checkpoints
 ```
 
-### RT-1-X
+<details>
+<summary><strong>Troubleshooting DDP/NCCL Issues</strong></summary>
 
-The RT-1 runner uses Abseil flags:
+When running distributed training on Modal, you may encounter NCCL timeout errors. Here's how we handle them:
 
-```bash
-world-model-eval-rt1 \
-  --root_dir /path/to/tasks \
-  --checkpoint_path /path/to/rt1x_checkpoint \
-  --world_model_checkpoint ~/checkpoints/world-model/mixed_openx_9robots_20frames_0p1actiondropout_580ksteps.pt
+**Validation Desync**: All ranks must wait during validation, not just rank 0.
+```python
+if train_steps % validate_every == 0:
+    if rank == 0:
+        # validation work
+    if distributed:
+        dist.barrier()  # All ranks wait
 ```
 
-Pass `--save_video` / `--video_out_dir` counterparts where available if you want MP4 rollouts.
-
----
-
-## Training quick start
-
-This is how you launch training. It will train on the tiny 10-example dataset in `sample_data/`.
-```bash
-# Replace N with the number of available GPUs
-torchrun --nproc_per_node=N train.py
+**Logging Desync**: Add barriers after rank-0-only file I/O.
+```python
+if rank == 0:
+    plt.savefig("loss.png")
+if distributed:
+    dist.barrier()
 ```
 
-Checkpoints and generated GIF samples will be written to `outputs/<timestamp>/`.
-
-## Train on Open X-Embodiment Datasets
-To train on the Open X-Embodiment datasets we used in the paper:
-```bash
-# We'll need tensorflow datasets and tensorflow since this code is 
-# based on the original Open X-Embodiment repo.
-pip install tensorflow tensorflow_datasets
-# For example, download just the RT-1 dataset:
-python -m world_model_eval.download_data --dataset_name rt_1
-# By default the data will be written to ./converted_datasets.
-# To choose your own output directory:
-python -m world_model_eval.download_data --dataset_name rt_1 --output_dir <your output dir>
+**NCCL Environment Variables** (set in `modal/modal_config.py`):
+```python
+"NCCL_TIMEOUT": "1800",           # 30 min timeout
+"NCCL_ASYNC_ERROR_HANDLING": "1", # Better error recovery
+"NCCL_IB_DISABLE": "1",           # Disable InfiniBand
 ```
-See `world_model_eval/download_data.py` for more dataset names to choose from.
 
+**Auto-retry**: Training automatically retries on transient failures and resumes from the latest checkpoint.
 
-Then launch training with the correct dataset path:
-```bash
-torchrun --nproc_per_node=N -m world_model_eval.train --dataset_dir ./converted_datasets --subset_names rt_1
-# Replace ./converted_datasets if your path is different.
-```
-You can enter a comma separated list for `subset_names` to train on a mixture of multiple datasets. For example, after downloading the `rt_1` and `bridge_v2` datasets, you can do `--subset_names rt_1,bridge_v2` to train on both the RT-1 and Bridge V2 datasets.
-
-#### Training on Bridge V2
-Since Bridge V2 was not included in the original Open X-Embodiment dataset, you'll need to first download the TFDS dataset to your machine like this:
-```
-wget -r -np -R "index.html*" https://rail.eecs.berkeley.edu/datasets/bridge_release/data/tfds/bridge_dataset/
-```
-Then, convert the dataset to our format with `python -m world_model_eval.download_data --dataset_name bridge_v2`, changing `BRIDGE_V2_PATH` at the top of the script if necessary. Since Bridge V2 is a superset of Bridge V1, choose between either downloading `bridge` or `bridge_v2`.
+</details>
 
 ---
 
 ## Citation
 
-If you find this work useful, please cite:
-
-```text
-@misc{quevedo2025worldgymworldmodelenvironment,
-      title={WorldGym: World Model as An Environment for Policy Evaluation}, 
-      author={Julian Quevedo and Ansh Kumar Sharma and Yixiang Sun and Varad Suryavanshi and Percy Liang and Sherry Yang},
-      year={2025},
-      eprint={2506.00613},
-      archivePrefix={arXiv},
-      primaryClass={cs.RO},
-      url={https://arxiv.org/abs/2506.00613}, 
+```bibtex
+@article{pham2025walleworld,
+    title     = {Wall-E-World: Evaluating Robot Policies via Large-Scale Human-Centric World Models},
+    author    = {Austin Pham and Hao Gu and Hod Lipson and Yue Wang},
+    journal   = {arXiv preprint},
+    year      = {2025},
 }
 ```
 
----
-
 ## Acknowledgements
-- [Boyuan Chen](https://boyuan.space/) and [Kiwhan Song](https://kiwhan.dev/) for [Diffusion Forcing](https://github.com/buoyancy99/diffusion-forcing)
-- [DiT](https://github.com/facebookresearch/DiT)
-- [Oasis](https://github.com/etched-ai/open-oasis)
-- [open_x_embodiment](https://github.com/google-deepmind/open_x_embodiment)
 
+- [WorldGym](https://arxiv.org/abs/2506.00613) - Quevedo et al.
+- [Diffusion Forcing](https://github.com/buoyancy99/diffusion-forcing)
+- [DiT](https://github.com/facebookresearch/DiT)
+- [Open X-Embodiment](https://github.com/google-deepmind/open_x_embodiment)

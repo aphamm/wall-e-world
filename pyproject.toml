@@ -3,18 +3,16 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "world-model-eval"
+name = "wall-e-world"
 version = "0.1.0"
-description = "Evaluation pipeline for robot policies using a video diffusion world model."
+description = "Evaluating robot policies via large-scale human-centric world models."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-  { name = "Julian Quevedo" },
-  { name = "Ansh Sharma" },
-  { name = "Yixiang Sun" },
-  { name = "Varad Suryavanshi" },
-  { name = "Percy Liang" },
-  { name = "Sherry Yang" },
+  { name = "Austin Pham" },
+  { name = "Hao Gu" },
+  { name = "Hod Lipson" },
+  { name = "Yue Wang" },
 ]
 dependencies = [
   "accelerate>=1.10.0",
@@ -78,14 +76,14 @@ octo = [
 ]
 
 [project.urls]
-homepage = "https://world-model-eval.github.io/"
-repository = "https://github.com/world-model-eval/world-model-eval"
+homepage = "https://aphamm.github.io/wall-e-world"
+repository = "https://github.com/aphamm/wall-e-world"
 
 [project.scripts]
-world-model-eval-openvla = "world_model_eval.run_openvla:main"
-world-model-eval-octo = "world_model_eval.run_octo:main"
-world-model-eval-spatialvla = "world_model_eval.run_spatialvla:main"
-world-model-eval-rt1 = "world_model_eval.run_rt1:main"
+wall-e-world-openvla = "wall_e_world.run_openvla:main"
+wall-e-world-octo = "wall_e_world.run_octo:main"
+wall-e-world-spatialvla = "wall_e_world.run_spatialvla:main"
+wall-e-world-rt1 = "wall_e_world.run_rt1:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -94,4 +92,4 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.exclude-package-data]
-"world_model_eval" = ["*.pt"]
+"wall_e_world" = ["*.pt"]
